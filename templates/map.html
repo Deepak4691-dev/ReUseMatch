@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Map - ReUseMatch AI{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block content %}
+<h1>Items near you</h1>
+<div id="map" role="application" aria-label="Map of available items"></div>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const map = L.map('map').setView([{{ g.user.lat if g.user and g.user.lat else DEFAULT_LAT }}, {{ g.user.lng if g.user and g.user.lng else DEFAULT_LNG }}], 13);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
+fetch('{{ url_for("api_items") }}').then(r => r.json()).then(list => {
+  list.forEach(i => {
+    const m = L.marker([i.lat, i.lng]).addTo(map);
+    const a = document.createElement('a'); a.href = i.url; a.textContent = i.title;
+    const wrap = document.createElement('div'); wrap.append(a, document.createTextNode(' (' + i.category + ', ' + i.quantity + ')'));
+    m.bindPopup(wrap);
+  });
+});
+</script>
+{% endblock %}

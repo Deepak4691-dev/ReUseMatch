@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% from "_card.html" import item_card %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Before it goes in the bin, ask who needs it.</h1>
+    <p class="lead">Photograph an unwanted chair, laptop or box of books. ReUseMatch suggests a category, finds nearby people and organizations who need it, and schedules the pickup.</p>
+    <div class="actions">
+      <a class="btn" href="{{ url_for('item_new') }}">List an item</a>
+      <a class="btn ghost" href="{{ url_for('items') }}">Browse what is available</a>
+    </div>
+  </div>
+  <aside class="ledger" aria-label="Impact so far">
+    <div class="big">{{ stats.kg }} kg</div>
+    <div class="sub">kept out of landfill so far</div>
+    <dl>
+      <dt>Items reused</dt><dd>{{ stats.items_reused }}</dd>
+      <dt>CO2 avoided (est.)</dt><dd>{{ stats.co2 }} kg</dd>
+      <dt>Members</dt><dd>{{ stats.users }}</dd>
+    </dl>
+  </aside>
+</section>
+<h2>Recently listed</h2>
+{% if recent %}
+<div class="grid">{% for it in recent %}{{ item_card(it) }}{% endfor %}</div>
+{% else %}<div class="empty">Nothing is listed yet. Be the first to list an item.</div>{% endif %}
+{% endblock %}

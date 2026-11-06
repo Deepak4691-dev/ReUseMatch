@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "_card.html" import bars %}
+{% block title %}Dashboard - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>Hello, {{ g.user.name }}</h1>
+<p><a class="btn" href="{{ url_for('item_new') }}">List an item</a> <a class="btn ghost" href="{{ url_for('need_new') }}">Post a need</a></p>
+
+<h2>Requests on your items</h2>
+{% if incoming %}<div class="table-scroll"><table>
+<tr><th>Item</th><th>From</th><th>Proposed time</th><th>Status</th><th></th></tr>
+{% for r in incoming %}<tr><td><a href="{{ url_for('item_detail', item_id=r.item_id) }}">{{ r.item_title }}</a></td>
+<td>{{ r.requester_name }}</td><td>{{ r.slot or '-' }}</td><td><span class="pill status-{{ r.status }}">{{ r.status|label }}</span></td>
+<td><a class="btn small ghost" href="{{ url_for('item_detail', item_id=r.item_id) }}">Review</a></td></tr>{% endfor %}
+</table></div>{% else %}<div class="empty">No open requests on your items.</div>{% endif %}
+
+<h2 style="margin-top:32px">Items you are requesting</h2>
+{% if outgoing %}<div class="table-scroll"><table>
+<tr><th>Item</th><th>Pickup time</th><th>Status</th><th></th></tr>
+{% for r in outgoing %}<tr><td><a href="{{ url_for('item_detail', item_id=r.item_id) }}">{{ r.item_title }}</a></td>
+<td>{{ r.slot or '-' }}</td><td><span class="pill status-{{ r.status }}">{{ r.status|label }}</span></td>
+<td>{% if r.status in ('pending','accepted') %}<form class="inline" method="post" action="{{ url_for('request_action', req_id=r.id, action='cancel') }}"><button class="btn small ghost">Cancel</button></form>{% endif %}</td></tr>{% endfor %}
+</table></div>{% else %}<div class="empty">You have not requested anything. <a href="{{ url_for('items') }}">Browse items</a>.</div>{% endif %}
+
+<h2 style="margin-top:32px">Your needs and best matches</h2>
+{% if suggestions %}{% for s in suggestions %}
+<div class="panel">
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <h3>{{ s.need.title }} <span class="meta">({{ s.need.category|label }}, {{ s.need.quantity }})</span></h3>
+    <form class="inline" method="post" action="{{ url_for('need_close', need_id=s.need.id) }}"><button class="btn small ghost">Close need</button></form>
+  </div>
+  {% if s.top %}<div class="grid">
+    {% for m in s.top %}<div>
+      <div class="score">{{ m.score }}<span class="meta"> / 100</span></div>
+      <a href="{{ url_for('item_detail', item_id=m.item.id) }}"><b>{{ m.item.title }}</b></a>
+      <div class="meta">{{ '%.1f'|format(m.distance) }} km away</div>{{ bars(m.parts) }}
+    </div>{% endfor %}</div>
+  {% else %}<p class="muted">Nothing matches yet. You will see it here as soon as someone lists a {{ s.need.category }} item.</p>{% endif %}
+</div>{% endfor %}
+{% else %}<div class="empty">Post a need and matching items will show up here.</div>{% endif %}
+
+<h2 style="margin-top:32px">Your listings</h2>
+{% if my_items %}<div class="table-scroll"><table>
+<tr><th>Item</th><th>Category</th><th>Qty</th><th>Status</th></tr>
+{% for i in my_items %}<tr><td><a href="{{ url_for('item_detail', item_id=i.id) }}">{{ i.title }}</a></td><td>{{ i.category|label }}</td><td>{{ i.quantity }}</td><td><span class="pill status-{{ i.status }}">{{ i.status|label }}</span></td></tr>{% endfor %}
+</table></div>{% else %}<div class="empty">You have not listed anything yet.</div>{% endif %}
+{% endblock %}

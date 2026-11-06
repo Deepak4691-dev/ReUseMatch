@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>Admin</h1>
+<div class="stats">
+  <div class="stat"><b>{{ users|length }}</b>users</div>
+  <div class="stat"><b>{{ items|length }}</b>listings</div>
+  <div class="stat"><b>{{ ai_acc if ai_acc is not none else 'n/a' }}{{ '%' if ai_acc is not none }}</b>classifier accuracy ({{ ai_total }} classified)</div>
+</div>
+<p class="hint">Classifier accuracy is the share of listings where the donor kept the AI suggestion.</p>
+<h2>Listings</h2>
+<div class="table-scroll"><table>
+<tr><th>Item</th><th>Donor</th><th>Category</th><th>AI suggested</th><th>Status</th><th></th></tr>
+{% for i in items %}<tr><td><a href="{{ url_for('item_detail', item_id=i.id) }}">{{ i.title }}</a></td><td>{{ i.donor_name }}</td><td>{{ i.category|label }}</td><td>{{ i.ai_category|label if i.ai_category else '-' }}</td>
+<td>{{ i.status|label }}</td><td><form method="post" action="{{ url_for('admin_delete', item_id=i.id) }}" onsubmit="return confirm('Remove this listing?')"><button class="btn small danger">Remove</button></form></td></tr>{% endfor %}
+</table></div>
+<h2 style="margin-top:32px">Users</h2>
+<div class="table-scroll"><table>
+<tr><th>Name</th><th>Email</th><th>Type</th><th>Joined</th></tr>
+{% for u in users %}<tr><td>{{ u.name }}</td><td>{{ u.email }}</td><td>{{ u.account_type|label }}</td><td>{{ u.created_at[:10] }}</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

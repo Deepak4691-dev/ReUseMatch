@@ -1,0 +1,4 @@
+Flask>=3.0
+Pillow>=10.0
+# Optional, enables real image classification (MobileNetV2):
+# tensorflow>=2.15

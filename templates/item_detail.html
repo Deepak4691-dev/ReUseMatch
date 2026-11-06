@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_card.html" import bars %}
+{% block title %}{{ item.title }} - ReUseMatch AI{% endblock %}
+{% block content %}
+<div class="two">
+  <div>
+    {% if item.image %}<img class="detail-pic" src="{{ url_for('static', filename='uploads/' ~ item.image) }}" alt="{{ item.title }}">
+    {% else %}<div class="detail-pic cat-{{ item.category }}" role="img" aria-label="No photo"></div>{% endif %}
+  </div>
+  <div>
+    <span class="pill status-{{ item.status }}">{{ item.status|label }}</span>
+    <h1>{{ item.title }}</h1>
+    <p class="meta">{{ item.category|label }} &middot; {{ item.condition|label }} &middot; {{ item.quantity }} available &middot; {{ '%.1f'|format(item.distance) }} km away</p>
+    <p>{{ item.description or 'No description.' }}</p>
+    <p class="meta">Listed by {{ item.donor_name }}{% if item.address %} &middot; Pickup: {{ item.address }}{% endif %}</p>
+    {% if item.status == 'available' %}
+      {% if not g.user %}<a class="btn" href="{{ url_for('login', next=request.path) }}">Log in to request</a>
+      {% elif g.user.id != item.donor_id %}
+        {% if my_request and my_request.status in ('pending','accepted') %}
+          <p><span class="pill status-{{ my_request.status }}">{{ my_request.status|label }}</span> Your request is open.</p>
+        {% else %}
+        <form class="panel" method="post" action="{{ url_for('request_item', item_id=item.id) }}">
+          <h3>Request this item</h3>
+          <label for="message">Message to the donor</label><textarea id="message" name="message" placeholder="Who will use it and where?"></textarea>
+          <label for="slot">Preferred pickup time</label><input id="slot" name="slot" type="datetime-local">
+          <p><button class="btn" type="submit">Send request</button></p>
+        </form>
+        {% endif %}
+      {% endif %}
+    {% elif my_request and my_request.status == 'accepted' %}
+      <div class="panel"><b>Pickup confirmed</b> for {{ my_request.slot or 'a time to be agreed' }}. Address: {{ item.address or 'ask the donor' }}</div>
+    {% endif %}
+  </div>
+</div>
+
+{% if g.user and g.user.id == item.donor_id %}
+<h2 style="margin-top:32px">Requests</h2>
+{% if incoming %}
+<div class="table-scroll"><table>
+<tr><th>From</th><th>Message</th><th>Proposed time</th><th>Status</th><th></th></tr>
+{% for r in incoming %}<tr>
+  <td>{{ r.requester_name }}</td><td>{{ r.message or '-' }}</td><td>{{ r.slot or '-' }}</td>
+  <td><span class="pill status-{{ r.status }}">{{ r.status|label }}</span></td>
+  <td>
+    {% if r.status == 'pending' and item.status == 'available' %}
+    <form class="inline" method="post" action="{{ url_for('request_action', req_id=r.id, action='accept') }}">
+      <input type="datetime-local" name="slot" value="{{ r.slot or '' }}" aria-label="Confirm pickup time" style="width:auto">
+      <button class="btn small">Accept</button></form>
+    <form class="inline" method="post" action="{{ url_for('request_action', req_id=r.id, action='decline') }}"><button class="btn ghost small">Decline</button></form>
+    {% elif r.status == 'accepted' %}
+    <form class="inline" method="post" action="{{ url_for('request_action', req_id=r.id, action='collected') }}"><button class="btn small">Mark collected</button></form>
+    <form class="inline" method="post" action="{{ url_for('request_action', req_id=r.id, action='cancel') }}"><button class="btn ghost small">Cancel</button></form>
+    {% endif %}
+  </td></tr>{% endfor %}
+</table></div>
+{% else %}<div class="empty">No requests yet.</div>{% endif %}
+
+<h2 style="margin-top:32px">Recipients who need this</h2>
+{% if matches %}
+<div class="grid">
+{% for m in matches %}<div class="panel">
+  <div class="score">{{ m.score }}<span class="meta"> / 100</span></div>
+  <h3>{{ m.need.title }}</h3>
+  <p class="meta">{{ m.need.user_name }} &middot; needs {{ m.need.quantity }} &middot; {{ '%.1f'|format(m.distance) }} km</p>
+  {{ bars(m.parts) }}
+</div>{% endfor %}
+</div>
+{% else %}<div class="empty">No open needs match this category yet.</div>{% endif %}
+{% endif %}
+{% endblock %}

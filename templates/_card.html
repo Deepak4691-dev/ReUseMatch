@@ -1,0 +1,15 @@
+{% macro item_card(it) %}
+<a class="tag cat-{{ it.category }}" href="{{ url_for('item_detail', item_id=it.id) }}">
+  <div class="pic" {% if it.image %}style="background-image:url('{{ url_for('static', filename='uploads/' ~ it.image) }}')"{% endif %}><span>{{ it.category|label }}</span></div>
+  <div class="body">
+    <h3>{{ it.title }}</h3>
+    <div class="meta">{{ it.quantity }} available &middot; {{ it.condition|label }}{% if it.distance is defined %} &middot; {{ '%.1f'|format(it.distance) }} km away{% endif %}</div>
+    <div class="meta">Listed by {{ it.donor_name }}</div>
+  </div>
+</a>
+{% endmacro %}
+{% macro bars(parts) %}
+{% for k, v in parts.items() %}
+<div class="bar"><span>{{ k|label }}</span><i><b style="width:{{ (v*100)|round|int }}%"></b></i><span>{{ (v*100)|round|int }}</span></div>
+{% endfor %}
+{% endmacro %}

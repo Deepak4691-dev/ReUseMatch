@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Impact - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>Impact dashboard</h1>
+<p class="muted">Counts completed pickups only. Weights and emissions are estimates based on the assumptions below.</p>
+<div class="stats">
+  <div class="stat"><b>{{ s.items_reused }}</b>items reused</div>
+  <div class="stat"><b>{{ s.kg }} kg</b>diverted from landfill</div>
+  <div class="stat"><b>{{ s.co2 }} kg</b>CO2 avoided (est.)</div>
+  <div class="stat"><b>{{ s.users }}</b>members</div>
+  <div class="stat"><b>{{ s.listed }}</b>items listed</div>
+</div>
+<div class="charts">
+  <div class="panel"><h3>Items reused by category</h3><canvas id="cat" height="220"></canvas></div>
+  <div class="panel"><h3>Kilograms diverted per month</h3><canvas id="month" height="220"></canvas></div>
+</div>
+<div class="panel">
+  <h3>Assumptions</h3>
+  <div class="table-scroll"><table>
+    <tr><th>Category</th><th>Assumed kg per unit</th><th>kg CO2e avoided per kg reused</th></tr>
+    {% for c, w in unit_w.items() %}<tr><td>{{ c|label }}</td><td>{{ w }}</td><td>{{ co2_factors[c] }}</td></tr>{% endfor %}
+  </table></div>
+  <p class="hint">Donors can enter an actual weight per unit; these averages apply when they do not. Emission factors are illustrative and should be replaced with sourced values in a formal report.</p>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+const data = {{ s|tojson }};
+const css = getComputedStyle(document.documentElement);
+const pine = css.getPropertyValue('--pine').trim(), ink = css.getPropertyValue('--muted').trim();
+Chart.defaults.color = ink;
+new Chart(document.getElementById('cat'), {type:'bar', data:{labels:Object.keys(data.by_category), datasets:[{label:'Items', data:Object.values(data.by_category), backgroundColor:pine}]}, options:{plugins:{legend:{display:false}}}});
+new Chart(document.getElementById('month'), {type:'line', data:{labels:Object.keys(data.by_month), datasets:[{label:'kg', data:Object.values(data.by_month), borderColor:pine, backgroundColor:pine}]}, options:{plugins:{legend:{display:false}}}});
+</script>
+{% endblock %}

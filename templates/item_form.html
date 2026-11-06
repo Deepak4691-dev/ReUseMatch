@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}List an item - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>List an item</h1>
+<form class="form" method="post" enctype="multipart/form-data">
+  <label for="image">Photo</label>
+  <input id="image" name="image" type="file" accept="image/png,image/jpeg,image/webp">
+  <div id="ai-box" class="muted" aria-live="polite">Add a photo and we will suggest a category.</div>
+  <input type="hidden" id="ai_category" name="ai_category"><input type="hidden" id="ai_confidence" name="ai_confidence">
+  <label for="title">Title</label><input id="title" name="title" value="{{ form.get('title','') }}" required>
+  <label for="category">Category</label>
+  <select id="category" name="category" required>{% for c in CATEGORIES %}<option value="{{ c }}" {{ 'selected' if form.get('category')==c }}>{{ c|label }}</option>{% endfor %}</select>
+  <label for="description">Description</label><textarea id="description" name="description">{{ form.get('description','') }}</textarea>
+  <div class="row">
+    <div><label for="condition">Condition</label>
+      <select id="condition" name="condition">{% for c in CONDITIONS %}<option value="{{ c }}" {{ 'selected' if (form.get('condition') or 'good')==c }}>{{ c|label }}</option>{% endfor %}</select></div>
+    <div><label for="quantity">Quantity</label><input id="quantity" name="quantity" type="number" min="1" value="{{ form.get('quantity',1) }}"></div>
+  </div>
+  <label for="unit_weight_kg">Weight of one unit (kg, optional)</label>
+  <input id="unit_weight_kg" name="unit_weight_kg" type="number" step="0.1" min="0" placeholder="Leave blank to use a category average">
+  <label for="address">Pickup address</label><input id="address" name="address" value="{{ form.get('address','') }}">
+  <div class="row">
+    <div><label for="lat">Latitude</label><input id="lat" name="lat" value="{{ form.get('lat', g.user.lat or DEFAULT_LAT) }}"></div>
+    <div><label for="lng">Longitude</label><input id="lng" name="lng" value="{{ form.get('lng', g.user.lng or DEFAULT_LNG) }}"></div>
+  </div>
+  <p class="hint"><button type="button" class="btn ghost small" onclick="useMyLocation('lat','lng','loc-status')">Use my location</button> <span id="loc-status"></span></p>
+  <button class="btn" type="submit">List item</button>
+</form>
+{% endblock %}

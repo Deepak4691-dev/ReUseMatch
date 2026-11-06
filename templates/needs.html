@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Needs - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>What people are looking for</h1>
+<p class="muted">Donors: if you have any of these, list it and the match score will point you to the best recipient.</p>
+<p><a class="btn" href="{{ url_for('need_new') }}">Post a need</a></p>
+{% if needs %}
+<div class="table-scroll"><table>
+<tr><th>Need</th><th>Category</th><th>Quantity</th><th>Urgency</th><th>Posted by</th></tr>
+{% for n in needs %}<tr>
+  <td><b>{{ n.title }}</b><div class="meta">{{ n.description }}</div></td>
+  <td>{{ n.category|label }}</td><td>{{ n.quantity }}</td>
+  <td>{{ ['', 'Low', 'Normal', 'Urgent'][n.urgency] }}</td>
+  <td>{{ n.user_name }}{% if n.account_type == 'organization' %} <span class="pill">Organization</span>{% endif %}</td>
+</tr>{% endfor %}</table></div>
+{% else %}<div class="empty">No open needs right now.</div>{% endif %}
+{% endblock %}

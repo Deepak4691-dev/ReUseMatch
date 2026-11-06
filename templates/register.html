@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Sign up - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>Create your account</h1>
+<form class="form" method="post">
+  <label for="name">Name or organization</label><input id="name" name="name" required>
+  <label for="email">Email</label><input id="email" name="email" type="email" required>
+  <label for="password">Password</label><input id="password" name="password" type="password" minlength="6" required>
+  <label for="account_type">Account type</label>
+  <select id="account_type" name="account_type"><option value="individual">Individual</option><option value="organization">NGO or organization</option></select>
+  <label for="area">Area</label><input id="area" name="area" placeholder="Hostel block, locality or city">
+  <div class="row">
+    <div><label for="lat">Latitude</label><input id="lat" name="lat" value="{{ DEFAULT_LAT }}"></div>
+    <div><label for="lng">Longitude</label><input id="lng" name="lng" value="{{ DEFAULT_LNG }}"></div>
+  </div>
+  <p class="hint"><button type="button" class="btn ghost small" onclick="useMyLocation('lat','lng','loc-status')">Use my location</button> <span id="loc-status"></span></p>
+  <p class="hint">Your location is used to sort items by distance.</p>
+  <button class="btn" type="submit">Create account</button>
+</form>
+{% endblock %}

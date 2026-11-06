@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Post a need - ReUseMatch AI{% endblock %}
+{% block content %}
+<h1>Post a need</h1>
+<form class="form" method="post">
+  <label for="title">What do you need?</label><input id="title" name="title" placeholder="20 chairs for a tuition room" required>
+  <label for="category">Category</label>
+  <select id="category" name="category">{% for c in CATEGORIES %}<option value="{{ c }}">{{ c|label }}</option>{% endfor %}</select>
+  <label for="description">Details</label><textarea id="description" name="description"></textarea>
+  <div class="row">
+    <div><label for="quantity">Quantity</label><input id="quantity" name="quantity" type="number" min="1" value="1"></div>
+    <div><label for="urgency">Urgency</label><select id="urgency" name="urgency"><option value="1">Low</option><option value="2" selected>Normal</option><option value="3">Urgent</option></select></div>
+  </div>
+  <label for="min_condition">Lowest acceptable condition</label>
+  <select id="min_condition" name="min_condition">{% for c in CONDITIONS %}<option value="{{ c }}">{{ c|label }}</option>{% endfor %}</select>
+  <p><button class="btn" type="submit">Post need</button></p>
+</form>
+{% endblock %}
